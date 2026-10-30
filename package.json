@@ -1,0 +1,15 @@
+{
+  "name": "thiep-cuoi",
+  "private": true,
+  "description": "Thiệp cưới online: sửa info/thong-tin.js và ảnh trong images/, rồi chạy trien-khai.bat",
+  "type": "module",
+  "scripts": {
+    "xuat-ban": "node cong-cu/xuat-ban.mjs",
+    "xem-thu": "node cong-cu/xem-thu.mjs",
+    "trien-khai": "node cong-cu/trien-khai.mjs"
+  },
+  "devDependencies": {
+    "sharp": "0.33.5",
+    "vercel": "64.1.0"
+  }
+}

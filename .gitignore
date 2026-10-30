@@ -1,0 +1,5 @@
+node_modules/
+xuat-ban/
+.cache-anh/
+.vercel/
+.vercel-token

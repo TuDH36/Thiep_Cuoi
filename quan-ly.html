@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#F6F5F2">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 30'%3E%3Cpath fill='%23E86464' d='M16 29C8 22.3 1 16.6 1 9.6 1 4.9 4.6 1.5 8.9 1.5c3 0 5.5 1.7 7.1 4.3 1.6-2.6 4.1-4.3 7.1-4.3 4.3 0 7.9 3.4 7.9 8.1 0 7-7 12.7-15 19.4Z'/%3E%3C/svg%3E">
+<title>Sổ khách</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Allison&family=Noto+Serif+Display:wdth,wght@62.5..100,100..400&family=Quicksand:wght@500;600;700&display=swap">
+<style>
+  /* Trang riêng của cô dâu chú rể: xem khách xác nhận tham dự và lời chúc (dữ liệu lấy từ Google Sheet trong luuTru) */
+  :root{--bg:#F6F5F2;--card:#FFFFFF;--ink:#2A2928;--ink2:#474645;--mute:#77736F;--line:#E6E2DC;--soft:#ECE9E4;
+    --coral:#E86464;--coral-d:#C84E4E;--ok:#3F7D4E;--ok-bg:#EAF3EC;--no:#6B6661;--no-bg:#EFEDEA;
+    --f-sig:"Allison","Dancing Script",cursive;--f-disp:"Noto Serif Display",Georgia,serif;--f-sans:"Quicksand",system-ui,-apple-system,"Segoe UI",sans-serif;
+    --ease-out:cubic-bezier(.23,1,.32,1);color-scheme:light}
+  *{box-sizing:border-box}
+  [hidden]{display:none!important}
+  body{margin:0;background:var(--bg);color:var(--ink);font:500 15.5px/1.5 var(--f-sans);-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+  main{max-width:960px;margin:0 auto;display:grid;gap:16px;align-content:start;
+    padding:calc(18px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(56px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+  h1,h2,p{margin:0}
+  button{font:inherit;cursor:pointer}
+  :focus-visible{outline:2px solid var(--coral);outline-offset:2px}
+  .sig{font-family:var(--f-sig);font-weight:400}
+  .cond{font-family:var(--f-disp);font-stretch:62.5%;font-weight:300}
+
+  /* Cửa vào: nhập mật khẩu */
+  main.gate-on{min-height:100svh;align-content:center}
+  .gate{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:30px 20px 22px;display:grid;gap:14px;text-align:center;width:100%;max-width:420px;margin:0 auto}
+  .gate h1{font-size:76px;line-height:.85}
+  .cp{font-size:26px;line-height:1.1;text-transform:uppercase;letter-spacing:.02em;color:var(--ink2)}
+  .lead{color:var(--mute);font-size:14.5px;text-wrap:balance}
+  .fld{display:grid;gap:6px;text-align:left;font-weight:700;font-size:14px;margin-top:4px}
+  .in{width:100%;height:48px;border:1px solid #D6D2CC;border-radius:10px;padding:0 14px;font:500 16px var(--f-sans);color:var(--ink);background:#fff}
+  .rm{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--ink2);justify-self:start;cursor:pointer}
+  .rm input{width:18px;height:18px;margin:0;accent-color:var(--coral-d)}
+  .go{height:50px;border:0;border-radius:10px;background:var(--coral-d);color:#fff;font-weight:700;font-size:16px;transition:transform .16s var(--ease-out)}
+  .go[disabled]{opacity:.7}
+  .err{min-height:1.4em;color:var(--coral-d);font-weight:600;font-size:14px;text-wrap:balance}
+
+  /* Đầu trang */
+  .top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .top h1{font-size:60px;line-height:.85}
+  .top .cp{font-size:20px}
+  .acts{display:flex;gap:8px}
+  .btn{height:40px;padding:0 15px;border-radius:999px;border:1px solid var(--ink);background:var(--ink);color:#fff;font-weight:700;font-size:14px;white-space:nowrap;transition:transform .16s var(--ease-out)}
+  .btn.ghost{background:transparent;color:var(--ink);border-color:#CFCAC3}
+  .btn.sm{height:34px;padding:0 12px;font-size:13px}
+  .btn[disabled]{opacity:.6}
+  .go:active,.btn:active{transform:scale(.97)}
+  .upd{font-size:13px;color:var(--mute);margin-top:-8px}
+
+  /* Nút chọn */
+  .seg{display:flex;gap:4px;padding:4px;background:var(--soft);border-radius:999px}
+  .seg button{flex:1;height:38px;border:0;border-radius:999px;background:transparent;color:#5E5A56;font-weight:700;font-size:14px;white-space:nowrap;transition:background-color .2s ease,color .2s ease}
+  .seg button[aria-pressed="true"]{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(40,30,20,.12)}
+
+  /* Con số */
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 16px 14px;display:grid;align-content:start;min-width:0}
+  .stat.big{grid-column:1/-1;grid-template-columns:auto 1fr;column-gap:14px;align-items:center}
+  .num{font-size:60px;line-height:1;color:var(--ink);font-variant-numeric:lining-nums}
+  .big .num{font-size:104px;color:var(--coral-d);grid-row:span 2}
+  .stat span{font-weight:700;font-size:15px}
+  .big span{font-size:19px;align-self:end}
+  .stat small{font-size:13px;color:var(--mute)}
+  .big small{align-self:start;font-size:14px}
+
+  .by{display:grid;gap:10px}
+  .blk{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 16px 6px;min-width:0}
+  .blk h2{font-size:14px;font-weight:700;color:var(--mute)}
+  .rows{list-style:none;margin:4px 0 0;padding:0}
+  .rows li{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:9px 0;border-top:1px solid #F0EDE8}
+  .rows li:first-child{border-top:0}
+  .rows b{white-space:nowrap}
+  .rows small{font-weight:600;color:var(--mute);margin-left:4px}
+
+  /* Thẻ tham dự / lời chúc */
+  .tabs{display:flex;gap:24px;border-bottom:1px solid var(--line);margin-top:4px}
+  .tabs button{border:0;background:none;padding:10px 0 12px;font-weight:700;font-size:16.5px;color:var(--mute);position:relative}
+  .tabs button[aria-selected="true"]{color:var(--ink)}
+  .tabs button[aria-selected="true"]::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;border-radius:2px;background:var(--coral-d)}
+  .tabs i{font-style:normal;color:var(--mute);margin-left:4px}
+  .panel{display:grid;gap:12px}
+  .tools{display:grid;gap:10px}
+  .list{list-style:none;margin:0;padding:0;display:grid;gap:8px;align-content:start}
+  .g,.w{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:grid;gap:4px;min-width:0}
+  .l1{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+  .n{font-size:16.5px;font-weight:700;min-width:0;overflow-wrap:anywhere}
+  .st{flex:none;font-size:13px;font-weight:700;padding:3px 10px;border-radius:999px}
+  .yes .st{background:var(--ok-bg);color:var(--ok)}
+  .no .st{background:var(--no-bg);color:var(--no)}
+  .meta{font-size:13.5px;color:var(--mute);overflow-wrap:anywhere}
+  .l3{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:2px;min-width:0}
+  .tel{color:var(--coral-d);font-weight:700;text-decoration:none;font-variant-numeric:tabular-nums}
+  time{font-size:12.5px;color:#8F8A84;white-space:nowrap}
+  .note{font-size:12.5px;color:#9A7B45}
+  .txt{white-space:pre-line;overflow-wrap:anywhere;color:var(--ink2)}
+  .w.off .n,.w.off .txt{opacity:.55}
+  .empty{padding:28px 16px;text-align:center;color:var(--mute);background:var(--card);border:1px dashed #D6D2CC;border-radius:14px;text-wrap:balance}
+  .foot{display:grid;gap:6px;justify-items:center;text-align:center;font-size:13px;color:var(--mute);margin-top:6px}
+  .foot a{color:var(--ink);font-weight:700}
+  .flash{position:fixed;z-index:5;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,16px);opacity:0;max-width:calc(100% - 32px);
+    background:rgba(35,33,31,.92);color:#fff;padding:10px 16px;border-radius:999px;font-size:14px;font-weight:600;text-align:center;pointer-events:none;transition:opacity .2s ease,transform .25s var(--ease-out)}
+  .flash.on{opacity:1;transform:translate(-50%,0)}
+
+  @media (min-width:720px){
+    .stats{grid-template-columns:2fr 1fr 1fr}
+    .stat.big{grid-column:auto}
+    .by{grid-template-columns:1fr 1fr}
+    .tools{grid-template-columns:1fr minmax(280px,auto)}
+    .list{grid-template-columns:1fr 1fr}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<p class="flash" id="flash" role="status"></p>
+<noscript><p style="padding:40px 20px;text-align:center">Trang cần bật JavaScript.</p></noscript>
+<script src="info/thong-tin.js"></script>
+<script>
+(() => {
+"use strict";
+const T = window.THIEP || {};
+const API = String(T.luuTru || "").trim();
+const app = document.getElementById("app"), flashEl = document.getElementById("flash");
+const $ = (s, r = app) => r.querySelector(s), $$ = (s, r = app) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const norm = s => String(s ?? "").normalize("NFC").toLocaleLowerCase("vi").trim();
+const SIDE = { "nha-trai": "Nhà trai", "nha-gai": "Nhà gái" };
+const COUPLE = T.logo || [T.chuRe?.tenHienThi, T.coDau?.tenHienThi].filter(Boolean).join(" & ");
+document.title = `Sổ khách ${COUPLE}`.trim();
+
+// Ghi nhớ mật khẩu và bên đang xem trên máy này (máy chặn lưu thì thôi, vẫn dùng được)
+const mem = {
+  get: k => { try { return localStorage.getItem(k) || ""; } catch (e) { return ""; } },
+  set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} },
+  del: k => { try { localStorage.removeItem(k); } catch (e) {} },
+};
+const K_PASS = "so-khach-mk", K_SIDE = "so-khach-ben";
+
+const ERR = {
+  "sai-mat-khau": "Mật khẩu chưa đúng.",
+  "chua-dat-mat-khau": "Chưa đặt mật khẩu trong mã Google Apps Script (dòng MAT_KHAU). Xem hướng dẫn trong huong-dan/luu-loi-chuc.md.",
+  "cu": "Bảng tính đang chạy mã cũ. Chép mã mới trong huong-dan/apps-script.gs vào Apps Script rồi triển khai phiên bản mới (xem huong-dan/luu-loi-chuc.md).",
+  "mang": "Không kết nối được bảng tính. Kiểm tra mạng rồi bấm Làm mới.",
+  "da-thay-doi": "Bảng tính vừa được sửa, đã tải lại danh sách.",
+};
+const errText = e => ERR[e.message] || `Bảng tính báo lỗi: ${e.message}`;
+
+let pass = "", data = null, side = SIDE[mem.get(K_SIDE)] ? mem.get(K_SIDE) : "all";
+let tab = "rsvp", status = "all", query = "", loadedAt = 0;
+
+// Gửi yêu cầu tới Google Apps Script (POST chữ thường để không bị chặn CORS)
+async function call(body) {
+  let r;
+  try { r = await fetch(API, { method: "POST", body: JSON.stringify(body) }); } catch (e) { throw new Error("mang"); }
+  const j = await r.json().catch(() => null);
+  if (!j) throw new Error("mang");
+  if (!j.ok) throw new Error(j.loi === "Thiếu tên" || j.loi === "Không rõ loại dữ liệu" ? "cu" : (j.loi || "mang"));
+  return j;
+}
+
+const ms = t => { const n = new Date(t).getTime(); return isNaN(n) ? 0 : n; };
+const when = t => { const n = new Date(t); return isNaN(n) ? "" : `${String(n.getHours()).padStart(2, "0")}:${String(n.getMinutes()).padStart(2, "0")} · ${n.getDate()}/${n.getMonth() + 1}`; };
+
+// Dòng bảng tính → danh sách dễ dùng. Một khách gửi nhiều lần (cùng tên, cùng link) thì chỉ giữ lần mới nhất.
+function shape(j) {
+  const rows = (j.xacNhan || []).map(r => {
+    const co = String(r[4]).trim() === "Có";
+    return { dong: r[0], t: r[1], ten: String(r[2] ?? ""), sdt: String(r[3] ?? "").trim(), co, so: co ? Math.max(1, Number(r[5]) || 1) : 0,
+      cua: String(r[6] ?? ""), le: String(r[7] ?? ""), ben: String(r[8] ?? ""), khach: String(r[9] ?? "") };
+  }).sort((a, b) => ms(a.t) - ms(b.t) || a.dong - b.dong);
+  const last = new Map();
+  rows.forEach(r => { const k = `${norm(r.ten)}|${norm(r.khach)}|${r.ben}`; r.lan = (last.get(k)?.lan || 0) + 1; last.set(k, r); });
+  const rsvp = [...last.values()].sort((a, b) => ms(b.t) - ms(a.t) || b.dong - a.dong);
+  const wish = (j.loiChuc || []).map(r => ({ dong: r[0], t: r[1], ten: String(r[2] ?? ""), text: String(r[3] ?? ""), hien: String(r[4]).trim().toUpperCase() !== "KHONG",
+    ben: String(r[5] ?? ""), khach: String(r[6] ?? "") })).sort((a, b) => ms(b.t) - ms(a.t) || b.dong - a.dong);
+  return { rsvp, wish, sheet: String(j.bang || "") };
+}
+
+async function load() {
+  data = shape(await call({ loai: "quanly", mk: pass }));
+  loadedAt = Date.now();
+}
+
+let flashT = 0;
+function flash(text) {
+  flashEl.textContent = text; flashEl.classList.add("on");
+  clearTimeout(flashT); flashT = setTimeout(() => flashEl.classList.remove("on"), 3200);
+}
+
+// ---------- Cửa vào ----------
+function gate(err = "") {
+  app.className = "gate-on";
+  app.innerHTML = `<form class="gate" novalidate>
+    <h1 class="sig">Sổ khách</h1>
+    ${COUPLE ? `<p class="cp cond">${esc(COUPLE)}</p>` : ""}
+    <p class="lead">Xem khách xác nhận tham dự và lời chúc. Trang riêng của cô dâu chú rể và gia đình.</p>
+    ${API ? `<label class="fld" for="pw">Mật khẩu<input class="in" id="pw" type="password" autocomplete="current-password" enterkeyhint="go"></label>
+    <label class="rm"><input id="rm" type="checkbox" checked>Ghi nhớ trên máy này</label>
+    <button class="go" type="submit">Mở sổ khách</button>
+    <p class="err" role="alert">${esc(err)}</p>`
+    : `<p class="err">Thiệp chưa kết nối Google Sheet. Dán link Apps Script vào mục luuTru trong info/thong-tin.js rồi đưa thiệp lên lại.</p>`}
+  </form>`;
+  const f = $("form"), pw = $("#pw");
+  if (!pw) return;
+  pw.focus();
+  f.addEventListener("submit", async e => {
+    e.preventDefault();
+    const btn = $(".go"), msg = $(".err");
+    if (!pw.value) { msg.textContent = "Nhập mật khẩu giúp nhé."; pw.focus(); return; }
+    pass = pw.value; btn.disabled = true; btn.textContent = "Đang mở…"; msg.textContent = "";
+    try {
+      await load();
+      if ($("#rm").checked) mem.set(K_PASS, pass); else mem.del(K_PASS);
+      dash();
+    } catch (err) {
+      msg.textContent = errText(err); btn.disabled = false; btn.textContent = "Mở sổ khách";
+      if (err.message === "sai-mat-khau") { pw.select(); pw.focus(); }
+    }
+  });
+}
+
+// ---------- Sổ khách ----------
+function dash() {
+  app.className = "";
+  const segBtn = (k, v, label, cur) => `<button type="button" data-${k}="${v}" aria-pressed="${cur === v}">${label}</button>`;
+  app.innerHTML = `<header class="top">
+      <div><h1 class="sig">Sổ khách</h1>${COUPLE ? `<p class="cp cond">${esc(COUPLE)}</p>` : ""}</div>
+      <div class="acts"><button class="btn" type="button" data-refresh>Làm mới</button><button class="btn ghost" type="button" data-out>Thoát</button></div>
+    </header>
+    <p class="upd" data-upd></p>
+    <div class="seg" role="group" aria-label="Xem khách của bên nào">${segBtn("side", "all", "Cả hai bên", side)}${segBtn("side", "nha-trai", "Nhà trai", side)}${segBtn("side", "nha-gai", "Nhà gái", side)}</div>
+    <section class="stats" data-stats aria-live="polite"></section>
+    <section class="by" data-by></section>
+    <div class="tabs" role="tablist">
+      <button type="button" role="tab" id="t-rsvp" aria-controls="p-rsvp" data-tab="rsvp">Tham dự<i data-c="rsvp"></i></button>
+      <button type="button" role="tab" id="t-wish" aria-controls="p-wish" data-tab="wish">Lời chúc<i data-c="wish"></i></button>
+    </div>
+    <div class="panel" id="p-rsvp" role="tabpanel" aria-labelledby="t-rsvp">
+      <div class="tools">
+        <input class="in" type="search" data-q placeholder="Tìm theo tên hoặc số điện thoại" aria-label="Tìm khách" value="${esc(query)}">
+        <div class="seg" role="group" aria-label="Lọc theo trả lời">${segBtn("status", "all", "Tất cả", status)}${segBtn("status", "yes", "Sẽ đến", status)}${segBtn("status", "no", "Không đến", status)}</div>
+      </div>
+      <ul class="list" data-list="rsvp"></ul>
+    </div>
+    <div class="panel" id="p-wish" role="tabpanel" aria-labelledby="t-wish"><ul class="list" data-list="wish"></ul></div>
+    <footer class="foot"><p>Khách gửi nhiều lần thì chỉ tính lần mới nhất.</p><a data-sheet target="_blank" rel="noopener" hidden>Mở bảng tính Google Sheet</a></footer>`;
+
+  $$("[data-side]").forEach(b => b.addEventListener("click", () => { side = b.dataset.side; mem.set(K_SIDE, side); paint(); }));
+  $$("[data-status]").forEach(b => b.addEventListener("click", () => { status = b.dataset.status; paint(); }));
+  $$("[data-tab]").forEach(b => b.addEventListener("click", () => { tab = b.dataset.tab; paint(); }));
+  $("[data-q]").addEventListener("input", e => { query = e.target.value; paint(); });
+  $("[data-refresh]").addEventListener("click", () => refresh(true));
+  $("[data-out]").addEventListener("click", () => { mem.del(K_PASS); pass = ""; data = null; gate(); });
+  $("[data-list=wish]").addEventListener("click", e => { const b = e.target.closest("[data-hide]"); if (b) toggleWish(b); });
+  paint();
+}
+
+function paint() {
+  if (!data) return;
+  $$("[data-side]").forEach(b => b.setAttribute("aria-pressed", b.dataset.side === side));
+  $$("[data-status]").forEach(b => b.setAttribute("aria-pressed", b.dataset.status === status));
+  $$("[data-tab]").forEach(b => { const on = b.dataset.tab === tab; b.setAttribute("aria-selected", on); b.tabIndex = on ? 0 : -1; });
+  $("#p-rsvp").hidden = tab !== "rsvp"; $("#p-wish").hidden = tab !== "wish";
+  $("[data-upd]").textContent = `Cập nhật lúc ${when(loadedAt).replace(" · ", ", ngày ")}`;
+  const sheet = $("[data-sheet]"); if (data.sheet) { sheet.href = data.sheet; sheet.hidden = false; }
+
+  const inSide = r => side === "all" || r.ben === side;
+  const R = data.rsvp.filter(inSide), W = data.wish.filter(inSide);
+  const yes = R.filter(r => r.co), no = R.filter(r => !r.co);
+  const people = list => list.reduce((s, r) => s + r.so, 0);
+
+  $("[data-stats]").innerHTML = `<div class="stat big"><b class="num cond">${people(yes)}</b><span>người sẽ đến</span><small>${yes.length} khách đã xác nhận</small></div>
+    <div class="stat"><b class="num cond">${no.length}</b><span>khách báo bận</span></div>
+    <div class="stat"><b class="num cond">${W.length}</b><span>lời chúc</span></div>`;
+
+  // Số người theo từng lễ (xếp theo thứ tự lễ trong thiệp) và theo từng bên
+  const order = (T.cacLe || []).map(e => { const [d, m] = String(e.ngayDuong || "").split("/"); return `${e.ten} (${Number(d)}/${Number(m)})`; });
+  const byLe = new Map();
+  yes.forEach(r => { const k = r.le || "Chưa chọn lễ"; const v = byLe.get(k) || { p: 0, n: 0 }; v.p += r.so; v.n++; byLe.set(k, v); });
+  const rank = k => { const i = order.indexOf(k); return i >= 0 ? i : k === "Chưa chọn lễ" ? 999 : 500; };
+  const leRows = [...byLe].sort((a, b) => rank(a[0]) - rank(b[0]));
+  const row = (label, v) => `<li><span>${esc(label)}</span><b>${v.p} người<small>${v.n} khách</small></b></li>`;
+  let by = leRows.length ? `<div class="blk"><h2>Theo lễ</h2><ul class="rows">${leRows.map(([k, v]) => row(k, v)).join("")}</ul></div>` : "";
+  if (side === "all" && yes.length) {
+    const sides = Object.keys(SIDE).map(k => { const l = yes.filter(r => r.ben === k); return [SIDE[k], { p: people(l), n: l.length }]; });
+    by += `<div class="blk"><h2>Theo bên gửi thiệp</h2><ul class="rows">${sides.map(([k, v]) => row(k, v)).join("")}</ul></div>`;
+  }
+  $("[data-by]").innerHTML = by; $("[data-by]").hidden = !by;
+
+  $("[data-c=rsvp]").textContent = ` ${R.length}`; $("[data-c=wish]").textContent = ` ${W.length}`;
+
+  // Danh sách khách
+  const q = norm(query);
+  const shown = R.filter(r => status === "all" || (status === "yes") === r.co).filter(r => !q || norm(`${r.ten} ${r.khach} ${r.sdt}`).includes(q) || r.sdt.replace(/\D/g, "").includes(q.replace(/\D/g, "") || "#"));
+  const greet = norm(T.loiChaoMacDinh);
+  $("[data-list=rsvp]").innerHTML = shown.length ? shown.map(r => {
+    const meta = [r.le, r.cua && `Khách của ${r.cua.toLocaleLowerCase("vi")}`, SIDE[r.ben] && `Link ${SIDE[r.ben].toLocaleLowerCase("vi")}`].filter(Boolean).map(esc).join(" · ");
+    const via = r.khach && norm(r.khach) !== norm(r.ten) && norm(r.khach) !== greet ? `<p class="meta">Thiệp gửi tới: ${esc(r.khach)}</p>` : "";
+    return `<li class="g ${r.co ? "yes" : "no"}">
+      <div class="l1"><b class="n">${esc(r.ten)}</b><span class="st">${r.co ? `Sẽ đến · ${r.so} người` : "Không đến"}</span></div>
+      ${meta ? `<p class="meta">${meta}</p>` : ""}${via}
+      <div class="l3">${r.sdt ? `<a class="tel" href="tel:${esc(r.sdt.replace(/[^\d+]/g, ""))}">${esc(r.sdt)}</a>` : "<span></span>"}<time>${when(r.t)}</time></div>
+      ${r.lan > 1 ? `<p class="note">Đã gửi ${r.lan} lần, đang tính lần mới nhất</p>` : ""}
+    </li>`;
+  }).join("") : `<li class="empty">${R.length ? "Không có khách nào khớp." : "Chưa có khách nào xác nhận. Khi khách bấm Xác nhận trên thiệp, tên sẽ hiện ở đây."}</li>`;
+
+  // Lời chúc
+  $("[data-list=wish]").innerHTML = W.length ? W.map(w => `<li class="w${w.hien ? "" : " off"}">
+      <div class="l1"><b class="n">${esc(w.ten)}</b><time>${when(w.t)}</time></div>
+      <p class="txt">${esc(w.text)}</p>
+      <div class="l3"><span class="meta">${w.hien ? "Đang hiện trên thiệp" : "Đã ẩn khỏi thiệp"}${SIDE[w.ben] ? ` · Link ${SIDE[w.ben].toLocaleLowerCase("vi")}` : ""}</span>
+      <button class="btn sm ghost" type="button" data-hide="${w.dong}">${w.hien ? "Ẩn khỏi thiệp" : "Hiện lại"}</button></div>
+    </li>`).join("") : `<li class="empty">Chưa có lời chúc nào.</li>`;
+}
+
+async function refresh(byHand) {
+  const b = $("[data-refresh]");
+  if (b) { b.disabled = true; b.textContent = "Đang tải…"; }
+  try { await load(); paint(); if (byHand) flash("Đã cập nhật danh sách"); }
+  catch (err) {
+    if (err.message === "sai-mat-khau") { mem.del(K_PASS); gate("Mật khẩu đã đổi, nhập lại giúp nhé."); return; }
+    flash(errText(err));
+  }
+  if (b) { b.disabled = false; b.textContent = "Làm mới"; }
+}
+
+async function toggleWish(b) {
+  const w = data.wish.find(x => String(x.dong) === b.dataset.hide); if (!w) return;
+  b.disabled = true;
+  try {
+    await call({ loai: "anhien", mk: pass, dong: w.dong, ten: w.ten, hien: !w.hien });
+    w.hien = !w.hien; paint(); flash(w.hien ? "Lời chúc đã hiện lại trên thiệp" : "Đã ẩn lời chúc khỏi thiệp");
+  } catch (err) {
+    b.disabled = false;
+    if (err.message === "da-thay-doi") { await refresh(false); flash(ERR["da-thay-doi"]); } else flash(errText(err));
+  }
+}
+
+// Quay lại trang sau một lúc thì tự tải danh sách mới
+document.addEventListener("visibilitychange", () => { if (!document.hidden && data && Date.now() - loadedAt > 60000) refresh(false); });
+
+// ---------- Mở trang ----------
+pass = API ? mem.get(K_PASS) : "";
+if (!pass) gate();
+else {
+  app.innerHTML = `<p class="lead" style="text-align:center;padding:40vh 0 0">Đang mở sổ khách…</p>`;
+  load().then(dash, err => { if (err.message === "sai-mat-khau") mem.del(K_PASS); gate(errText(err)); });
+}
+})();
+</script>
+</body>
+</html>
